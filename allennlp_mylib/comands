@@ -1,0 +1,45 @@
+Making Predictionn
+allennlp train experiments/priority_crisis_classifier.json -s ./tmp/priority_crisis_classifier_mincount --include-package allennlp_mylib
+
+
+allennlp predict \
+    tests/fixtures/model.tar.gz \
+    tests/fixtures/priority_crisis_tweets.jsonl  \
+    --include-package allennlp_mylib \
+    --predictor priority_crisis_predictor \
+    --output-file predictions/predicted-priority-test
+
+allennlp predict \
+    tmp/priority_crisis_classifier_da_mincount_w2vtrainable_full/model.tar.gz \
+    dataset/test_dataset_gt.json  \
+    --include-package allennlp_mylib \
+    --predictor priority_crisis_predictor \
+    --output-file predictions/predicted-priority-da-mincount-w2vtrainable-full
+
+python3 -m allennlp.service.server_simple \
+    --archive-path tmp/priority_crisis_classifier/model.tar.gz \
+    --predictor priority_crisis_predictor \
+    --include-package allennlp_mylib \
+    --title "Crisis Tweet Priority Classifier" \
+    --field-name text \
+
+python3 -m allennlp.service.server_simple \
+    --archive-path tmp/priority_crisis_classifier/model.tar.gz \
+    --predictor priority_crisis_predictor \
+    --include-package allennlp_mylib \
+    --static-dir static_html
+
+    **********++++++++========++++++*******
+    allennlp predict \
+    tmp/category_crisis_classifier_da_lossweight_mincount_w2ctrainable/model.tar.gz \
+    dataset/test_dataset_gt.json  \
+    --include-package allennlp_mylib \
+    --predictor category_crisis_predictor \
+    --output-file predictions/predicted-category-da-lossweight-mincount-w2cindomaintrainable
+
+    python3 -m allennlp.service.server_simple \
+    --archive-path tmp/category_crisis_classifier/model.tar.gz \
+    --predictor category_crisis_predictor \
+    --include-package allennlp_mylib \
+    --title "Crisis Tweet Category Classifier" \
+    --field-name text \

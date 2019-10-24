@@ -1,0 +1,90 @@
+/*
+The configuration here is set up with reference to https://github.com/allenai/allennlp/blob/master/training_config/biattentive_classification_network_elmo.jsonnet
+*/
+
+{
+  "dataset_reader":{
+    "type": "pc_tweets",
+    "token_indexers": {
+      "tokens": {
+        "type": "single_id"
+      },
+      "elmo": {
+        "type": "elmo_characters"
+      }
+    }
+  },
+  "train_data_path": "dataset/train_fixtures.json",
+  "validation_data_path": "dataset/train_fixtures.json",
+  "model": {
+    "type": "priority_crisis_elmo_classifier",
+    "text_field_embedder": {
+      "token_embedders": {
+        "tokens": {
+            "pretrained_file": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/glove/glove.840B.300d.txt.gz",
+            "type": "embedding",
+            "embedding_dim": 300,
+            "trainable": false
+        }
+      }
+    },
+    "embedding_dropout": 0.5,
+    "elmo": {
+      "options_file": "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json",
+      "weight_file": "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
+      "do_layer_norm": false,
+      "dropout": 0.0,
+      "num_output_representations": 1
+    },
+    "use_input_elmo": true,
+    "use_integrator_output_elmo": false,
+    "pre_encode_feedforward": {
+        "input_dim": 1324,
+        "num_layers": 1,
+        "hidden_dims": [300],
+        "activations": ["relu"],
+        "dropout": [0.25]
+    },
+    "encoder": {
+      "type": "lstm",
+      "input_size": 300,
+      "hidden_size": 300,
+      "num_layers": 1,
+      "bidirectional": true
+    },
+    "integrator": {
+      "type": "lstm",
+      "input_size": 1800,
+      "hidden_size": 300,
+      "num_layers": 1,
+      "bidirectional": true
+    },
+    "integrator_dropout": 0.1,
+    "output_layer": {
+        "input_dim": 2400,
+        "num_layers": 3,
+        "output_dims": [1200, 600, 4],
+        "pool_sizes": 4, //4 here refers to the number of priority levels in output layer
+        "dropout": [0.2, 0.3, 0.0]
+    }
+  },
+  "iterator": {
+    "type": "bucket",
+    "sorting_keys": [["text", "num_tokens"]],
+    "batch_size" : 64
+  },
+  "trainer": {
+    "num_epochs": 40,
+    "patience": 5,
+    "grad_norm": 5.0,
+    "validation_metric": "-loss",
+    "cuda_device": 0,
+    "optimizer": {
+      "type": "adam",
+      "lr": 0.001
+    }
+  },
+    "vocabulary": {
+    "min_count": {"tokens": 3}
+  }
+}

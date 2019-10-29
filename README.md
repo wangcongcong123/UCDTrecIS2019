@@ -1,5 +1,5 @@
 # UCD-TREC-2019-IS
-This repository contains reproducible code of UCD at TREC 2019 [Incident Streams track](http://dcs.gla.ac.uk/~richardm/TREC_IS/)
+This repository contains reproducible code of UCD at TREC 2019-B [Incident Streams track](http://dcs.gla.ac.uk/~richardm/TREC_IS/)
 
 ### Requirements
 
